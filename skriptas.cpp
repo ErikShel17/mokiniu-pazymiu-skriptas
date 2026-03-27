@@ -4,9 +4,12 @@
 
 using namespace std;
 
+// Maksimalūs dydžiai
 const int MAX_MOKINIU = 100;
 const int MAX_PAZYMIU = 10;
 
+// Funkcija ieško mokinio pagal vardą ir grąžina jo indeksą masyve
+// Jei neranda – grąžina -1
 int rastiMokini(const string vardai[], int kiekis, const string& vardas) {
     for (int i = 0; i < kiekis; i++) {
         if (vardai[i] == vardas) {
@@ -16,6 +19,8 @@ int rastiMokini(const string vardai[], int kiekis, const string& vardas) {
     return -1;
 }
 
+// Funkcija suskaičiuoja kiek mokinys turi pažymių
+// Skaičiuoja tol, kol randamas 0 (reiškia tuščia vieta)
 int pazymiuKiekis(const int pazymiai[][MAX_PAZYMIU], int mokinys) {
     int kiekis = 0;
     while (kiekis < MAX_PAZYMIU && pazymiai[mokinys][kiekis] != 0) {
@@ -24,24 +29,30 @@ int pazymiuKiekis(const int pazymiai[][MAX_PAZYMIU], int mokinys) {
     return kiekis;
 }
 
+// Funkcija prideda naują mokinį ir jo pažymius
 void pridetiMokini(string vardai[], int pazymiai[][MAX_PAZYMIU], int& kiekis) {
+    // Patikriname ar dar yra vietos
     if (kiekis >= MAX_MOKINIU) {
         cout << "Mokiniu sarasas pilnas.\n";
         return;
     }
 
+    // Išvalome įvesties buferį
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
+    // Įvedamas vardas
     cout << "Iveskite mokinio varda: ";
     getline(cin, vardai[kiekis]);
 
     cout << "Iveskite pazymius po viena (1-10). Baigti - 0.\n";
 
+    // Įvedami pažymiai
     for (int j = 0; j < MAX_PAZYMIU; j++) {
         int pazymys;
         cout << "Pazymys " << j + 1 << ": ";
         cin >> pazymys;
 
+        // Tikriname ar įvestis teisinga
         while (cin.fail() || pazymys < 0 || pazymys > 10) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -49,17 +60,21 @@ void pridetiMokini(string vardai[], int pazymiai[][MAX_PAZYMIU], int& kiekis) {
             cin >> pazymys;
         }
 
+        // Jei įvedė 0 – stabdome įvedimą
         if (pazymys == 0) {
             break;
         }
 
+        // Išsaugome pažymį
         pazymiai[kiekis][j] = pazymys;
     }
 
+    // Padidiname mokinių kiekį
     kiekis++;
     cout << "Mokinys pridetas.\n";
 }
 
+// Funkcija parodo visus mokinius ir jų pažymius
 void rodytiVisus(const string vardai[], const int pazymiai[][MAX_PAZYMIU], int kiekis) {
     if (kiekis == 0) {
         cout << "Sarasas tuscias.\n";
@@ -70,6 +85,8 @@ void rodytiVisus(const string vardai[], const int pazymiai[][MAX_PAZYMIU], int k
         cout << i + 1 << ". " << vardai[i] << " -> ";
 
         int kiek = pazymiuKiekis(pazymiai, i);
+
+        // Jei nėra pažymių
         if (kiek == 0) {
             cout << "Nera pazymiu";
         }
@@ -83,6 +100,7 @@ void rodytiVisus(const string vardai[], const int pazymiai[][MAX_PAZYMIU], int k
     }
 }
 
+// Funkcija parodo vieno konkretaus mokinio pažymius
 void rodytiViena(const string vardai[], const int pazymiai[][MAX_PAZYMIU], int kiekis) {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -100,6 +118,7 @@ void rodytiViena(const string vardai[], const int pazymiai[][MAX_PAZYMIU], int k
     cout << vardai[indeksas] << " pazymiai: ";
 
     int kiek = pazymiuKiekis(pazymiai, indeksas);
+
     if (kiek == 0) {
         cout << "Nera pazymiu";
     }
@@ -112,6 +131,7 @@ void rodytiViena(const string vardai[], const int pazymiai[][MAX_PAZYMIU], int k
     cout << '\n';
 }
 
+// Funkcija leidžia atnaujinti konkretų pažymį
 void atnaujintiPazymi(string vardai[], int pazymiai[][MAX_PAZYMIU], int kiekis) {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -127,6 +147,7 @@ void atnaujintiPazymi(string vardai[], int pazymiai[][MAX_PAZYMIU], int kiekis) 
     }
 
     int kiek = pazymiuKiekis(pazymiai, indeksas);
+
     if (kiek == 0) {
         cout << "Sis mokinys neturi pazymiu.\n";
         return;
@@ -136,6 +157,7 @@ void atnaujintiPazymi(string vardai[], int pazymiai[][MAX_PAZYMIU], int kiekis) 
     cout << "Kuri pazymi norite pakeisti? (1-" << kiek << "): ";
     cin >> nr;
 
+    // Tikriname ar pasirinktas teisingas numeris
     while (cin.fail() || nr < 1 || nr > kiek) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -154,10 +176,12 @@ void atnaujintiPazymi(string vardai[], int pazymiai[][MAX_PAZYMIU], int kiekis) 
         cin >> naujas;
     }
 
+    // Atnaujiname pažymį
     pazymiai[indeksas][nr - 1] = naujas;
     cout << "Pazymys atnaujintas.\n";
 }
 
+// Funkcija pašalina mokinį iš masyvo
 void pasalintiMokini(string vardai[], int pazymiai[][MAX_PAZYMIU], int& kiekis) {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
@@ -172,6 +196,7 @@ void pasalintiMokini(string vardai[], int pazymiai[][MAX_PAZYMIU], int& kiekis) 
         return;
     }
 
+    // Perkeliame visus elementus į kairę (užpildome "skylę")
     for (int i = indeksas; i < kiekis - 1; i++) {
         vardai[i] = vardai[i + 1];
         for (int j = 0; j < MAX_PAZYMIU; j++) {
@@ -179,6 +204,7 @@ void pasalintiMokini(string vardai[], int pazymiai[][MAX_PAZYMIU], int& kiekis) 
         }
     }
 
+    // Išvalome paskutinį elementą
     vardai[kiekis - 1] = "";
     for (int j = 0; j < MAX_PAZYMIU; j++) {
         pazymiai[kiekis - 1][j] = 0;
@@ -189,13 +215,16 @@ void pasalintiMokini(string vardai[], int pazymiai[][MAX_PAZYMIU], int& kiekis) 
 }
 
 int main() {
+    // Masyvai
     string vardai[MAX_MOKINIU];
     int pazymiai[MAX_MOKINIU][MAX_PAZYMIU] = { 0 };
-    int kiekis = 0;
+
+    int kiekis = 0; // kiek mokinių turime
 
     int pasirinkimas;
 
     do {
+        // Meniu
         cout << "\n--- Meniu ---\n";
         cout << "1. Ivesti mokini ir jo pazymius\n";
         cout << "2. Perziureti visu mokiniu sarasa\n";
@@ -206,6 +235,7 @@ int main() {
         cout << "Pasirinkite veiksma: ";
         cin >> pasirinkimas;
 
+        // Tikriname įvestį
         while (cin.fail()) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -213,6 +243,7 @@ int main() {
             cin >> pasirinkimas;
         }
 
+        // Vykdome pasirinktą veiksmą
         switch (pasirinkimas) {
         case 1:
             pridetiMokini(vardai, pazymiai, kiekis);
