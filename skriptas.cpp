@@ -2,22 +2,19 @@
 #include <string>
 using namespace std;
 
-// Maksimalūs dydžiai pagal sąlygą
+// Maksimalūs dydžiai
 const int MAX_MOKINIU = 100;
 const int MAX_PAZYMIU = 10;
 
 int main() {
-    // Vienmatis masyvas mokinių vardams
-    string vardai[MAX_MOKINIU];
+    string vardai[MAX_MOKINIU]; // saugo mokinių vardus
+    int pazymiai[MAX_MOKINIU][MAX_PAZYMIU] = { 0 }; // saugo pažymius
 
-    // Dvimatis masyvas pažymiams
-    int pazymiai[MAX_MOKINIU][MAX_PAZYMIU] = { 0 };
-
-    int mokiniuKiekis = 0; // kiek turime mokinių
+    int mokiniuKiekis = 0;
     int pasirinkimas;
 
     do {
-        // Meniu pasirinkimui
+        // Meniu
         cout << "\n--- MENIU ---\n";
         cout << "1. Prideti mokini\n";
         cout << "2. Rodyti visus mokinius\n";
@@ -28,36 +25,57 @@ int main() {
         cout << "Pasirinkimas: ";
         cin >> pasirinkimas;
 
+        // Tikrinam įvestį
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            cout << "Bloga ivestis!\n";
+            continue;
+        }
+
         // 1. Pridėti mokinį
         if (pasirinkimas == 1) {
             if (mokiniuKiekis >= MAX_MOKINIU) {
-                cout << "Nebegalima prideti daugiau mokiniu\n";
+                cout << "Sarasas pilnas\n";
                 continue;
             }
 
             cout << "Iveskite varda: ";
-            cin >> vardai[mokiniuKiekis]; // įrašomas vardas
+            cin >> vardai[mokiniuKiekis];
 
-            // Įvedami pažymiai
-            cout << "Iveskite pazymius (0 - baigti):\n";
+            // Naujas įvedimo būdas
+            cout << "Iveskite pazymius per tarpa (0 - baigti):\n";
+
             for (int j = 0; j < MAX_PAZYMIU; j++) {
                 int p;
-                cin >> p;
+                cin >> p; // įvedam be papildomo teksto
 
-                if (p == 0) break; // stabdom įvedimą
+                // Tikrinam ar skaičius
+                if (cin.fail()) {
+                    cin.clear();
+                    cin.ignore(1000, '\n');
+                    cout << "Iveskite skaiciu!\n";
+                    j--;
+                    continue;
+                }
 
-                pazymiai[mokiniuKiekis][j] = p; // išsaugom pažymį
+                if (p == 0) break; // baigiam įvedimą
+
+                pazymiai[mokiniuKiekis][j] = p;
             }
 
-            mokiniuKiekis++; // padidinam mokinių skaičių
+            mokiniuKiekis++;
         }
 
         // 2. Rodyti visus mokinius
         else if (pasirinkimas == 2) {
+            if (mokiniuKiekis == 0) {
+                cout << "Nera mokiniu\n";
+            }
+
             for (int i = 0; i < mokiniuKiekis; i++) {
                 cout << vardai[i] << ": ";
 
-                // rodom pažymius
                 for (int j = 0; j < MAX_PAZYMIU; j++) {
                     if (pazymiai[i][j] == 0) break;
                     cout << pazymiai[i][j] << " ";
@@ -66,24 +84,29 @@ int main() {
             }
         }
 
-        // 3. Rodyti vieną mokinį
+        // 3. Rodyti vieno mokinio pažymius
         else if (pasirinkimas == 3) {
             string vardas;
             cout << "Iveskite varda: ";
             cin >> vardas;
 
-            // ieškom mokinio
+            bool rastas = false;
+
             for (int i = 0; i < mokiniuKiekis; i++) {
                 if (vardai[i] == vardas) {
                     cout << "Pazymiai: ";
 
-                    // rodom pažymius
                     for (int j = 0; j < MAX_PAZYMIU; j++) {
                         if (pazymiai[i][j] == 0) break;
                         cout << pazymiai[i][j] << " ";
                     }
                     cout << endl;
+                    rastas = true;
                 }
+            }
+
+            if (!rastas) {
+                cout << "Mokinys nerastas\n";
             }
         }
 
@@ -96,13 +119,20 @@ int main() {
             for (int i = 0; i < mokiniuKiekis; i++) {
                 if (vardai[i] == vardas) {
                     int nr, naujas;
+
                     cout << "Kuri pazymi keisti (1-10): ";
                     cin >> nr;
 
                     cout << "Naujas pazymys: ";
                     cin >> naujas;
 
-                    pazymiai[i][nr - 1] = naujas; // pakeičiam pažymį
+                    if (nr >= 1 && nr <= MAX_PAZYMIU) {
+                        pazymiai[i][nr - 1] = naujas;
+                        cout << "Atnaujinta\n";
+                    }
+                    else {
+                        cout << "Blogas numeris\n";
+                    }
                 }
             }
         }
@@ -116,7 +146,7 @@ int main() {
             for (int i = 0; i < mokiniuKiekis; i++) {
                 if (vardai[i] == vardas) {
 
-                    // perstumiam masyvą į kairę
+                    // Perstumiam masyvą
                     for (int k = i; k < mokiniuKiekis - 1; k++) {
                         vardai[k] = vardai[k + 1];
 
@@ -125,13 +155,14 @@ int main() {
                         }
                     }
 
-                    mokiniuKiekis--; // sumažinam kiekį
+                    mokiniuKiekis--;
+                    cout << "Mokinys pasalintas\n";
                     break;
                 }
             }
         }
 
-    } while (pasirinkimas != 0); // kartojam kol 0
+    } while (pasirinkimas != 0);
 
     return 0;
 }
